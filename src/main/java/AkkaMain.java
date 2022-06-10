@@ -8,9 +8,13 @@ import com.jiangh.akka.demo.forward.ForwardActor;
 import com.jiangh.akka.demo.procedure.BecomeActorDemo;
 import com.jiangh.akka.demo.stop.StopActorDemo;
 import com.jiangh.akka.demo.stop.StopWatchActorDemo;
+import com.jiangh.akka.demo.supervisor.SupervisorActor;
 import com.jiangh.akka.demo.uid.UidActorDemo;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * @author jiangzheng
@@ -20,13 +24,43 @@ import scala.concurrent.duration.Duration;
 public class AkkaMain {
 
     public static void main(String[] args) {
+        // 2.10 监督与容错处理
+        supervisor();
+
         // 2.9　停掉一个Actor
-        stop();
+//        stop();
+
         // 查找UID
 //        uid();
 
         // 2.7 Actor行为切换
 //        procedure();
+    }
+
+
+    // 2.10 监督与容错处理
+    private static void supervisor(){
+        ActorSystem system=ActorSystem. create( "sys");
+        ActorRef actorRef = system.actorOf(Props.create(SupervisorActor.class), "supervisorActor");
+
+        ActorSelection as = system.actorSelection(actorRef.path()+"/supervisorChildActor");
+        String path = as.pathString();
+
+        System.out.println("path = " + path);
+
+        ActorRef anchor = as.anchor();
+//        as.tell(new IOException(), ActorRef.noSender());
+//        as.tell(new SQLException("SQL异常"), ActorRef.noSender());
+        as.tell(new IndexOutOfBoundsException(), ActorRef.noSender());
+        Timeout timeout = new Timeout(Duration.create(2,"seconds"));
+        Future<Object> askDemo = Patterns.ask(anchor, "getValue", timeout);
+
+        askDemo.onSuccess(new OnSuccess<Object>() {
+            @Override
+            public void onSuccess(Object o) throws Throwable {
+                System.out.println("o = " + o);
+            }
+        }, system.dispatcher());
     }
 
     // 2.9　停掉一个Actor
