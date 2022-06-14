@@ -4,12 +4,15 @@ import akka.pattern.Patterns;
 import akka.util.Timeout;
 import com.jiangh.akka.demo.ActorCeatorDemo;
 import com.jiangh.akka.demo.ActorDemo;
+import com.jiangh.akka.demo.dispather.DispatcherActorDemo;
 import com.jiangh.akka.demo.forward.ForwardActor;
 import com.jiangh.akka.demo.procedure.BecomeActorDemo;
 import com.jiangh.akka.demo.stop.StopActorDemo;
 import com.jiangh.akka.demo.stop.StopWatchActorDemo;
 import com.jiangh.akka.demo.supervisor.SupervisorActor;
 import com.jiangh.akka.demo.uid.UidActorDemo;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
@@ -24,8 +27,11 @@ import java.sql.SQLException;
 public class AkkaMain {
 
     public static void main(String[] args) {
+        // dispatcher
+        configHelloWorld();
+
         // 2.10 监督与容错处理
-        supervisor();
+//        supervisor();
 
         // 2.9　停掉一个Actor
 //        stop();
@@ -37,6 +43,14 @@ public class AkkaMain {
 //        procedure();
     }
 
+
+    public static void configHelloWorld(){
+        String akkaConfigFileName = "actor-system.conf";
+        Config config = ConfigFactory.parseResources(akkaConfigFileName).withFallback(ConfigFactory.load());
+        ActorSystem system=ActorSystem.create("sys", config);
+        ActorRef forwardRef = system.actorOf(Props.create(DispatcherActorDemo.class).withDispatcher("ruyuan-dispatcher"), "dispatcherActor");
+        forwardRef.tell("dispatcher", ActorRef.noSender());
+    }
 
     // 2.10 监督与容错处理
     private static void supervisor(){
