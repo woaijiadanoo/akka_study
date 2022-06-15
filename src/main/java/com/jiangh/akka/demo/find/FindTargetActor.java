@@ -10,7 +10,10 @@ import akka.actor.UntypedActor;
 public class FindTargetActor extends UntypedActor {
 
     @Override
-    public void onReceive(Object o) throws Exception {
-        System.out.println("FindTargetActor o = " + o);
+    public void onReceive(Object msg) throws Exception {
+        System.out.println("FindTargetActor o = " + msg);
+        System.out.println("FindTargetActor path = " + getSelf().path());
+        System.out.println("FindTargetActor uid = " + getSelf().path().uid());
+        System.out.println("FindTargetActor name = " + getSelf().path().name());
     }
 }
