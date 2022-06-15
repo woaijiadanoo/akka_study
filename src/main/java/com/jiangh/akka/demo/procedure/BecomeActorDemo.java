@@ -13,14 +13,26 @@ public class BecomeActorDemo extends UntypedActor {
     Procedure<Object> proce= new Procedure<Object>() {
         @Override
         public void apply(Object message) {
-            System. out .println("become: " +message );
+            if("end".equals(message)){
+                getContext().unbecome();
+            }
+            System.out.println("procedure become: " +message );
         }
     };
 
     @Override
     public void onReceive(Object msg) throws Exception {
         System.out.println("接收消息: " +msg );
-        getContext().become( proce);
-        System. out .println("-------------------------" );
+        if(msg instanceof String){
+            if("start".equals(msg)){
+                getContext().become(proce);
+            }
+
+            System.out.println("un become msg : "+ msg);
+
+        }else{
+            unhandled(msg);
+        }
+
     }
 }
