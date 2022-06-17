@@ -41,6 +41,7 @@ public class SupervisorChildActor extends UntypedActor {
     public void onReceive(Object msg) throws Exception {
         //模拟计算任务
         this.stateCount++;
+        System.out.println("onReceive stateCount = " + stateCount);
         if (msg instanceof Exception) {
             throw (Exception) msg;
         } else if ("getValue".equals(msg)) {
